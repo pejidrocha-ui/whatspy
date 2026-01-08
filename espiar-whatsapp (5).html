@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPIAR WHATSAPP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background: #000;
+            color: #0f0;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Matrix Rain Effect */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.25;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 60px;
+            text-shadow: 
+                0 0 20px #0f0,
+                0 0 40px #0f0,
+                0 0 60px #0f0,
+                0 0 80px #0f0,
+                0 0 100px #0f0;
+            animation: glitch 2s infinite;
+            letter-spacing: 8px;
+            position: relative;
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px 40px;
+            border-radius: 10px;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% {
+                text-shadow: 
+                    0 0 10px #0f0,
+                    0 0 20px #0f0,
+                    0 0 30px #0f0;
+            }
+            92% {
+                text-shadow: 
+                    -2px 0 10px #f00,
+                    2px 2px 20px #0ff;
+                transform: translate(-2px, 2px);
+            }
+            94% {
+                text-shadow: 
+                    2px 0 10px #0ff,
+                    -2px -2px 20px #f00;
+                transform: translate(2px, -2px);
+            }
+        }
+
+        .form-container {
+            background: rgba(0, 20, 0, 0.85);
+            border: 2px solid #0f0;
+            border-radius: 10px;
+            padding: 50px 60px;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 0, 0.3),
+                inset 0 0 20px rgba(0, 255, 0, 0.1);
+            min-width: 450px;
+            backdrop-filter: blur(10px);
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #0f0;
+        }
+
+        .phone-input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        select, input {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #0f0;
+            color: #0f0;
+            padding: 15px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            border-radius: 5px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        select {
+            flex: 0 0 140px;
+            cursor: pointer;
+        }
+
+        input {
+            flex: 1;
+        }
+
+        select:focus, input:focus {
+            border-color: #0ff;
+            box-shadow: 
+                0 0 10px rgba(0, 255, 255, 0.5),
+                inset 0 0 5px rgba(0, 255, 255, 0.2);
+        }
+
+        select option {
+            background: #001a00;
+            color: #0f0;
+            padding: 10px;
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #003300, #006600);
+            border: 2px solid #0f0;
+            color: #0f0;
+            padding: 18px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #006600, #009900);
+            box-shadow: 
+                0 0 30px rgba(0, 255, 0, 0.6),
+                inset 0 0 20px rgba(0, 255, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .info-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            opacity: 0.7;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Scrollbar estilo Matrix */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #0f0;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0ff;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.5rem;
+                letter-spacing: 4px;
+            }
+
+            .form-container {
+                min-width: auto;
+                width: 100%;
+                padding: 30px 25px;
+            }
+
+            .phone-input-wrapper {
+                flex-direction: column;
+            }
+
+            select {
+                flex: 1;
+            }
+        }
+
+        /* Terminal Styles */
+        .terminal-overlay {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 700px;
+            height: 500px;
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .terminal-overlay.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .terminal {
+            background: #000;
+            border: 2px solid #0f0;
+            border-radius: 10px;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 255, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-header {
+            background: #003300;
+            padding: 10px 20px;
+            border-bottom: 1px solid #0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .terminal-button.red { 
+            background: #ff5f56;
+            cursor: pointer;
+        }
+        
+        .terminal-button.red:hover {
+            box-shadow: 0 0 10px #ff5f56;
+        }
+
+        .terminal-button.yellow { background: #ffbd2e; }
+        .terminal-button.green { background: #27c93f; }
+
+        .terminal-title {
+            color: #0f0;
+            font-size: 0.85rem;
+            margin-left: 10px;
+            flex-grow: 1;
+        }
+
+        .terminal-body {
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .terminal-line {
+            color: #0f0;
+            margin: 3px 0;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        .terminal-line.error {
+            color: #ff0000;
+        }
+
+        .terminal-line.warning {
+            color: #ffff00;
+        }
+
+        .terminal-line.success {
+            color: #00ff00;
+        }
+
+        .terminal-line.info {
+            color: #00ffff;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: #0f0;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .countdown-container {
+            background: rgba(0, 50, 0, 0.8);
+            border: 2px solid #0f0;
+            padding: 20px;
+            margin-top: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .countdown-title {
+            font-size: 0.9rem;
+            color: #ffff00;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .countdown-timer {
+            font-size: 2rem;
+            color: #0f0;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 20px #0f0;
+            font-weight: 900;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #0f0;
+            border-radius: 10px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #0f0, #0ff);
+            width: 0%;
+            transition: width 1s linear;
+            box-shadow: 0 0 10px #0f0;
+        }
+
+        .target-info {
+            background: rgba(0, 50, 0, 0.6);
+            border: 1px solid #0f0;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            font-size: 0.7rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 3px 0;
+            padding: 3px;
+        }
+
+        .info-label {
+            color: #ffff00;
+            font-weight: bold;
+        }
+
+        .info-value {
+            color: #0f0;
+        }
+
+        @media (max-width: 768px) {
+            .terminal-overlay {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                width: auto;
+                height: 400px;
+            }
+        }
+
+        /* WhatsApp Loading Screen */
+        .whatsapp-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #111b21;
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .whatsapp-loading.active {
+            display: flex;
+        }
+
+        .whatsapp-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 30px;
+            opacity: 0.6;
+        }
+
+        .whatsapp-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: #54656f;
+        }
+
+        .loading-text {
+            color: #8696a0;
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-size: 18px;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .attack-status {
+            color: #00a884;
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .loading-bar-wrapper {
+            width: 400px;
+            height: 3px;
+            background: #2a3942;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: #00a884;
+            width: 0%;
+            transition: width 1s linear;
+            border-radius: 2px;
+        }
+
+        .encryption-text {
+            color: #8696a0;
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lock-icon {
+            width: 12px;
+            height: 12px;
+            fill: #8696a0;
+        }
+
+        .attack-countdown {
+            color: #00a884;
+            font-family: 'Orbitron', monospace;
+            font-size: 32px;
+            font-weight: 700;
+            margin-top: 30px;
+            text-shadow: 0 0 10px rgba(0, 168, 132, 0.5);
+        }
+
+        /* Extraction Terminal */
+        .extraction-terminal {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 420px;
+            max-height: 350px;
+            background: #000;
+            border: 2px solid #00a884;
+            border-radius: 10px;
+            z-index: 2001;
+            display: none;
+            box-shadow: 0 0 30px rgba(0, 168, 132, 0.4);
+        }
+
+        .extraction-terminal.active {
+            display: block;
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .extraction-header {
+            background: #00a884;
+            padding: 8px 12px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: #000;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .extraction-body {
+            padding: 12px;
+            max-height: 280px;
+            overflow-y: auto;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            line-height: 1.4;
+        }
+
+        .extraction-line {
+            color: #00a884;
+            margin: 3px 0;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        .extraction-line.processing {
+            color: #ffff00;
+        }
+
+        .extraction-line.complete {
+            color: #00ff00;
+        }
+
+        .warning-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 59, 48, 0.95);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 13px;
+            z-index: 2002;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            animation: pulse 2s infinite;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .warning-message.active {
+            display: flex;
+        }
+
+        .warning-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 600px) {
+            .loading-bar-wrapper {
+                width: 80%;
+            }
+
+            .whatsapp-icon {
+                width: 60px;
+                height: 60px;
+            }
+
+            .loading-text {
+                font-size: 16px;
+            }
+
+            .attack-countdown {
+                font-size: 24px;
+            }
+
+            .extraction-terminal {
+                left: 10px;
+                right: 10px;
+                width: auto;
+                bottom: 80px;
+                max-height: 250px;
+            }
+
+            .extraction-header {
+                font-size: 0.6rem;
+                padding: 6px 10px;
+            }
+
+            .extraction-body {
+                font-size: 0.58rem;
+                padding: 10px;
+                max-height: 180px;
+            }
+
+            .warning-message {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                font-size: 11px;
+                padding: 10px 15px;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .warning-icon {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+                letter-spacing: 3px;
+                padding: 15px 25px;
+            }
+
+            .form-container {
+                padding: 25px 20px;
+            }
+
+            .extraction-terminal {
+                bottom: 70px;
+                max-height: 200px;
+            }
+
+            .extraction-body {
+                max-height: 140px;
+            }
+
+            .attack-countdown {
+                font-size: 20px;
+            }
+        }
+
+        @media (min-width: 601px) and (max-width: 1024px) {
+            .extraction-terminal {
+                width: 380px;
+                max-height: 320px;
+            }
+
+            .extraction-body {
+                max-height: 250px;
+            }
+        }
+
+        /* Landscape mobile */
+        @media (max-width: 900px) and (orientation: landscape) {
+            .extraction-terminal {
+                max-height: 180px;
+                bottom: 10px;
+            }
+
+            .extraction-body {
+                max-height: 120px;
+                font-size: 0.6rem;
+            }
+
+            .warning-message {
+                font-size: 11px;
+                padding: 8px 15px;
+            }
+
+            .whatsapp-loading {
+                padding: 20px;
+            }
+
+            .whatsapp-icon {
+                width: 50px;
+                height: 50px;
+                margin-bottom: 15px;
+            }
+
+            .loading-text {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+
+            .attack-countdown {
+                font-size: 20px;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+    
+    <div class="container">
+        <h1>ESPIAR WHATSAPP</h1>
+        
+        <div class="form-container">
+            <form id="whatsapp-form">
+                <div class="input-group">
+                    <label for="country-code">Código de País</label>
+                    <select id="country-code" name="country-code" required>
+                        <option value="+1">🇺🇸 Estados Unidos (+1)</option>
+                        <option value="+52">🇲🇽 México (+52)</option>
+                        <option value="+34">🇪🇸 España (+34)</option>
+                        <option value="+54">🇦🇷 Argentina (+54)</option>
+                        <option value="+591">🇧🇴 Bolivia (+591)</option>
+                        <option value="+55">🇧🇷 Brasil (+55)</option>
+                        <option value="+56">🇨🇱 Chile (+56)</option>
+                        <option value="+57">🇨🇴 Colombia (+57)</option>
+                        <option value="+506">🇨🇷 Costa Rica (+506)</option>
+                        <option value="+53">🇨🇺 Cuba (+53)</option>
+                        <option value="+593">🇪🇨 Ecuador (+593)</option>
+                        <option value="+503">🇸🇻 El Salvador (+503)</option>
+                        <option value="+502">🇬🇹 Guatemala (+502)</option>
+                        <option value="+504">🇭🇳 Honduras (+504)</option>
+                        <option value="+505">🇳🇮 Nicaragua (+505)</option>
+                        <option value="+507">🇵🇦 Panamá (+507)</option>
+                        <option value="+595">🇵🇾 Paraguay (+595)</option>
+                        <option value="+51">🇵🇪 Perú (+51)</option>
+                        <option value="+1">🇵🇷 Puerto Rico (+1)</option>
+                        <option value="+1">🇩🇴 República Dominicana (+1)</option>
+                        <option value="+598">🇺🇾 Uruguay (+598)</option>
+                        <option value="+58">🇻🇪 Venezuela (+58)</option>
+                        <option value="+44">🇬🇧 Reino Unido (+44)</option>
+                        <option value="+33">🇫🇷 Francia (+33)</option>
+                        <option value="+49">🇩🇪 Alemania (+49)</option>
+                        <option value="+39">🇮🇹 Italia (+39)</option>
+                        <option value="+351">🇵🇹 Portugal (+351)</option>
+                        <option value="+7">🇷🇺 Rusia (+7)</option>
+                        <option value="+86">🇨🇳 China (+86)</option>
+                        <option value="+81">🇯🇵 Japón (+81)</option>
+                        <option value="+82">🇰🇷 Corea del Sur (+82)</option>
+                        <option value="+91">🇮🇳 India (+91)</option>
+                        <option value="+61">🇦🇺 Australia (+61)</option>
+                        <option value="+64">🇳🇿 Nueva Zelanda (+64)</option>
+                        <option value="+27">🇿🇦 Sudáfrica (+27)</option>
+                        <option value="+20">🇪🇬 Egipto (+20)</option>
+                        <option value="+234">🇳🇬 Nigeria (+234)</option>
+                        <option value="+254">🇰🇪 Kenia (+254)</option>
+                        <option value="+971">🇦🇪 Emiratos Árabes Unidos (+971)</option>
+                        <option value="+966">🇸🇦 Arabia Saudita (+966)</option>
+                        <option value="+90">🇹🇷 Turquía (+90)</option>
+                        <option value="+62">🇮🇩 Indonesia (+62)</option>
+                        <option value="+63">🇵🇭 Filipinas (+63)</option>
+                        <option value="+66">🇹🇭 Tailandia (+66)</option>
+                        <option value="+60">🇲🇾 Malasia (+60)</option>
+                        <option value="+65">🇸🇬 Singapur (+65)</option>
+                        <option value="+84">🇻🇳 Vietnam (+84)</option>
+                        <option value="+92">🇵🇰 Pakistán (+92)</option>
+                        <option value="+880">🇧🇩 Bangladesh (+880)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="phone-number">Número de Teléfono</label>
+                    <input 
+                        type="tel" 
+                        id="phone-number" 
+                        name="phone-number" 
+                        placeholder="Ingrese el número sin código de país"
+                        pattern="[0-9]*"
+                        required
+                    >
+                </div>
+
+                <button type="submit">INICIAR ESPIONAJE</button>
+
+                <p class="info-text">SISTEMA ENCRIPTADO • CONEXIÓN SEGURA</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Terminal Overlay -->
+    <div class="terminal-overlay" id="terminal-overlay">
+        <div class="terminal">
+            <div class="terminal-header">
+                <span class="terminal-button red" onclick="closeTerminal()"></span>
+                <span class="terminal-button yellow"></span>
+                <span class="terminal-button green"></span>
+                <span class="terminal-title">root@darknet:~# WHATSAPP EXPLOIT v3.7.2</span>
+            </div>
+            <div class="terminal-body" id="terminal-body">
+                <!-- Terminal content will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Loading Screen -->
+    <div class="whatsapp-loading" id="whatsapp-loading">
+        <div class="whatsapp-icon">
+            <svg viewBox="0 0 39 39" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.7 32.8l.6.3c2.5 1.5 5.3 2.2 8.1 2.2 8.8 0 16-7.2 16-16 0-4.2-1.7-8.3-4.7-11.3s-7-4.7-11.3-4.7c-8.8 0-16 7.2-15.9 16.1 0 3 .9 5.9 2.4 8.4l.4.6-1.6 5.9 6-1.5z"/>
+                <path fill="#fff" d="M32.4 6.4C29 2.9 24.3 1 19.5 1 9.3 1 1.1 9.3 1.2 19.4c0 3.2.9 6.3 2.4 9.1L1 38l9.7-2.5c2.7 1.5 5.7 2.2 8.7 2.2 10.1 0 18.3-8.3 18.3-18.4 0-4.9-1.9-9.5-5.3-12.9zM19.5 34.6c-2.7 0-5.4-.7-7.7-2.1l-.6-.3-5.8 1.5L6.9 28l-.4-.6c-4.4-7.1-2.3-16.5 4.9-20.9s16.5-2.3 20.9 4.9 2.3 16.5-4.9 20.9c-2.3 1.5-5.1 2.3-7.9 2.3zm8.8-11.1l-1.1-.5s-1.6-.7-2.6-1.2c-.1 0-.2-.1-.3-.1-.3 0-.5.1-.7.2 0 0-.1.1-1.5 1.7-.1.2-.3.3-.5.3h-.1c-.1 0-.3-.1-.4-.2l-.5-.2c-1.1-.5-2.1-1.1-2.9-1.9-.2-.2-.5-.4-.7-.6-.7-.7-1.4-1.5-1.9-2.4l-.1-.2c-.1-.1-.1-.2-.2-.4 0-.2 0-.4.1-.5 0 0 .4-.5.7-.8.2-.2.3-.5.5-.7.2-.3.3-.7.2-1-.1-.5-1.3-3.2-1.6-3.8-.2-.3-.4-.4-.7-.5h-1.1c-.2 0-.4.1-.6.1l-.1.1c-.2.1-.4.3-.6.4-.2.2-.3.4-.5.6-.7.9-1.1 2-1.1 3.1 0 .8.2 1.6.5 2.3l.1.3c.9 1.9 2.1 3.6 3.7 5.1l.4.4c.3.3.6.5.8.8 2.1 1.8 4.5 3.1 7.2 3.8.3.1.7.1 1 .2h1c.5 0 1.1-.2 1.5-.4.3-.2.5-.2.7-.4l.2-.2c.2-.2.4-.3.6-.5s.4-.4.5-.6c.2-.4.3-.9.4-1.4v-.7s-.1-.1-.3-.2z"/>
+            </svg>
+        </div>
+        <div class="loading-text">Conectando WhatsApp</div>
+        <div class="loading-bar-wrapper">
+            <div class="loading-bar-fill" id="loading-bar-fill"></div>
+        </div>
+        <div class="attack-status">Ataque Iniciado</div>
+        <div class="encryption-text">
+            <svg class="lock-icon" viewBox="0 0 10 12" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 0C3.3 0 2 1.3 2 3v1.3C.8 4.8 0 6.1 0 7.5 0 9.4 1.6 11 3.5 11h3c1.9 0 3.5-1.6 3.5-3.5 0-1.4-.8-2.7-2-3.2V3c0-1.7-1.3-3-3-3zm0 1c1.1 0 2 .9 2 2v1H3V3c0-1.1.9-2 2-2z"/>
+            </svg>
+            Cifrado de extremo a extremo
+        </div>
+        <div class="attack-countdown" id="attack-countdown">01:00:00</div>
+    </div>
+
+    <!-- Extraction Terminal -->
+    <div class="extraction-terminal" id="extraction-terminal">
+        <div class="extraction-header">EXTRACCIÓN DE DATOS EN PROGRESO</div>
+        <div class="extraction-body" id="extraction-body">
+            <!-- Extraction messages will be added here -->
+        </div>
+    </div>
+
+    <!-- Warning Message -->
+    <div class="warning-message" id="warning-message">
+        <span class="warning-icon">⚠️</span>
+        <span>Por favor, no salga de la aplicación. Si abandona, la clonación puede fallar.</span>
+    </div>
+
+    <script>
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Matrix Rain Effect
+            const canvas = document.getElementById('matrix-canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const katakana = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+            const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const nums = '0123456789';
+            const alphabet = katakana + latin + nums;
+
+            const fontSize = 16;
+            const columns = canvas.width / fontSize;
+
+            const rainDrops = [];
+
+            for (let x = 0; x < columns; x++) {
+                rainDrops[x] = 1;
+            }
+
+            const draw = () => {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#0F0';
+                ctx.font = fontSize + 'px monospace';
+
+                for (let i = 0; i < rainDrops.length; i++) {
+                    const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                    ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+                    if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        rainDrops[i] = 0;
+                    }
+                    rainDrops[i]++;
+                }
+            };
+
+            setInterval(draw, 30);
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+
+            // Close terminal function
+            window.closeTerminal = function() {
+                document.getElementById('terminal-overlay').classList.remove('active');
+            };
+
+            // Form handling
+            document.getElementById('whatsapp-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                console.log('Form submitted!'); // Debug
+                
+                const countryCode = document.getElementById('country-code').value;
+                const countryText = document.getElementById('country-code').options[document.getElementById('country-code').selectedIndex].text;
+                const phoneNumber = document.getElementById('phone-number').value;
+                const fullNumber = countryCode + phoneNumber;
+                
+                console.log('Full number:', fullNumber); // Debug
+                
+                // Extract country name
+                const countryName = countryText.split(' ')[1];
+                
+                startTerminalSimulation(countryCode, phoneNumber, fullNumber, countryName);
+            });
+
+            function startTerminalSimulation(countryCode, phoneNumber, fullNumber, countryName) {
+                console.log('Starting terminal simulation'); // Debug
+                
+                const overlay = document.getElementById('terminal-overlay');
+                const terminalBody = document.getElementById('terminal-body');
+                
+                console.log('Overlay element:', overlay); // Debug
+                
+                overlay.classList.add('active');
+                terminalBody.innerHTML = '';
+            
+            const commands = [
+                { text: `root@darknet:~# initialize_attack.sh`, delay: 100, class: 'success' },
+                { text: `[*] Cargando módulos de ataque...`, delay: 300 },
+                { text: `[*] Módulo SSH Tunnel.............[OK]`, delay: 400, class: 'success' },
+                { text: `[*] Módulo TOR Proxy..............[OK]`, delay: 500, class: 'success' },
+                { text: `[*] Módulo WhatsApp Exploit.......[OK]`, delay: 600, class: 'success' },
+                { text: `[*] Módulo Network Scanner........[OK]`, delay: 700, class: 'success' },
+                { text: ``, delay: 800 },
+                { text: `root@darknet:~# target_scan --number ${fullNumber}`, delay: 900, class: 'info' },
+                { text: `[+] Escaneando objetivo...`, delay: 1100 },
+                { text: `[+] Resolviendo DNS...`, delay: 1300 },
+                { text: `[+] Trazando ruta de red...`, delay: 1500 },
+                { text: `[+] Analizando infraestructura de telecomunicaciones...`, delay: 1700 },
+                { text: ``, delay: 1900 },
+                { text: `[!] OBJETIVO IDENTIFICADO`, delay: 2100, class: 'warning' },
+                { text: `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`, delay: 2200 },
+                { 
+                    html: `<div class="target-info">
+                        <div class="info-row"><span class="info-label">País:</span><span class="info-value">${countryName}</span></div>
+                        <div class="info-row"><span class="info-label">Código:</span><span class="info-value">${countryCode}</span></div>
+                        <div class="info-row"><span class="info-label">Número:</span><span class="info-value">${fullNumber}</span></div>
+                        <div class="info-row"><span class="info-label">IP Detectada:</span><span class="info-value">${generateRandomIP()}</span></div>
+                        <div class="info-row"><span class="info-label">ISP:</span><span class="info-value">${getISP(countryName)}</span></div>
+                        <div class="info-row"><span class="info-label">Operador:</span><span class="info-value">${getCarrier(countryName)}</span></div>
+                        <div class="info-row"><span class="info-label">Tipo de Línea:</span><span class="info-value">Móvil GSM/LTE</span></div>
+                        <div class="info-row"><span class="info-label">Estado:</span><span class="info-value" style="color:#0f0;">ACTIVO</span></div>
+                    </div>`, 
+                    delay: 2400 
+                },
+                { text: `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`, delay: 2500 },
+                { text: ``, delay: 2600 },
+                { text: `root@darknet:~# whatsapp_exploit --target ${fullNumber} --mode stealth`, delay: 2800, class: 'info' },
+                { text: `[*] Iniciando exploit de WhatsApp...`, delay: 3000 },
+                { text: `[*] Estableciendo túnel TOR...`, delay: 3200 },
+                { text: `[+] Conectado a red TOR [3 saltos]`, delay: 3500, class: 'success' },
+                { text: `[*] Spoofing MAC address...`, delay: 3700 },
+                { text: `[+] MAC address aleatorizada: ${generateRandomMAC()}`, delay: 3900, class: 'success' },
+                { text: `[*] Bypass de verificación en dos pasos...`, delay: 4100 },
+                { text: `[+] 2FA bypass completado`, delay: 4400, class: 'success' },
+                { text: ``, delay: 4600 },
+                { text: `[*] INICIANDO EXPLOIT...`, delay: 4800, class: 'warning' },
+                { text: `[>] Explotando vulnerabilidad CVE-2024-XXXX`, delay: 5000 },
+                { text: `[>] Inyectando payload en servidor WhatsApp`, delay: 5300 },
+                { text: `[>] Estableciendo backdoor persistente`, delay: 5600 },
+                { text: `[+] Exploit ejecutado exitosamente`, delay: 5900, class: 'success' },
+                { text: ``, delay: 6100 },
+                { text: `[*] Conectando a WhatsApp Web...`, delay: 6300, class: 'info' },
+                { text: `[>] Conectando a web.whatsapp.com`, delay: 6500 },
+                { text: `[>] Autenticando sesión fantasma...`, delay: 6800 },
+                { text: `[>] Sincronizando mensajes...`, delay: 7100 },
+                { text: `[>] Descargando multimedia...`, delay: 7400 },
+                { text: `[+] Conexión a WhatsApp Web establecida`, delay: 7700, class: 'success' },
+                { text: ``, delay: 7900 },
+                { text: `[!] INICIANDO ATAQUE EN TIEMPO REAL`, delay: 8100, class: 'error' },
+                { text: `[!] Duración estimada: 01:00:00`, delay: 8300, class: 'warning' },
+                { text: `[*] Modo silencioso activado - El objetivo no será notificado`, delay: 8500 },
+                { text: `[*] Abriendo interfaz de WhatsApp Web...`, delay: 8700, class: 'info' }
+            ];
+            
+            let currentDelay = 0;
+            
+            commands.forEach(cmd => {
+                setTimeout(() => {
+                    const line = document.createElement('div');
+                    line.className = `terminal-line ${cmd.class || ''}`;
+                    
+                    if (cmd.html) {
+                        line.innerHTML = cmd.html;
+                    } else {
+                        line.textContent = cmd.text;
+                    }
+                    
+                    terminalBody.appendChild(line);
+                    terminalBody.scrollTop = terminalBody.scrollHeight;
+                }, cmd.delay);
+                
+                currentDelay = cmd.delay;
+            });
+
+            // Show WhatsApp loading screen after terminal commands
+            setTimeout(() => {
+                showWhatsAppLoading();
+            }, currentDelay + 1000);
+        }
+
+        function showWhatsAppLoading() {
+            const whatsappLoading = document.getElementById('whatsapp-loading');
+            whatsappLoading.classList.add('active');
+            
+            // Start countdown
+            startAttackCountdown();
+            
+            // Show extraction terminal after a delay
+            setTimeout(() => {
+                startExtractionProcess();
+            }, 3000);
+            
+            // Show warning message
+            setTimeout(() => {
+                document.getElementById('warning-message').classList.add('active');
+            }, 5000);
+        }
+
+        function startExtractionProcess() {
+            const extractionTerminal = document.getElementById('extraction-terminal');
+            const extractionBody = document.getElementById('extraction-body');
+            
+            extractionTerminal.classList.add('active');
+            extractionBody.innerHTML = '';
+            
+            const extractionSteps = [
+                { text: '[*] Iniciando proceso de extracción...', delay: 500 },
+                { text: '[>] Conectando a base de datos local...', delay: 1000 },
+                { text: '[✓] Conexión establecida', delay: 1500, class: 'complete' },
+                { text: '', delay: 1700 },
+                { text: '[*] Extrayendo contactos eliminados...', delay: 2000, class: 'processing' },
+                { text: '[>] Escaneando archivos msgstore.db', delay: 2500 },
+                { text: '[>] Recuperando 247 contactos eliminados', delay: 3200 },
+                { text: '[✓] Contactos extraídos exitosamente', delay: 4000, class: 'complete' },
+                { text: '', delay: 4200 },
+                { text: '[*] Extrayendo mensajes eliminados...', delay: 4700, class: 'processing' },
+                { text: '[>] Analizando base de datos de mensajes', delay: 5300 },
+                { text: '[>] Recuperando 1,834 mensajes eliminados', delay: 6000 },
+                { text: '[>] Reconstruyendo conversaciones', delay: 6800 },
+                { text: '[✓] Mensajes recuperados', delay: 7500, class: 'complete' },
+                { text: '', delay: 7700 },
+                { text: '[*] Extrayendo fotos e imágenes...', delay: 8200, class: 'processing' },
+                { text: '[>] Escaneando directorio /WhatsApp/Media/', delay: 8800 },
+                { text: '[>] Encontradas 523 imágenes eliminadas', delay: 9500 },
+                { text: '[>] Descargando archivos multimedia...', delay: 10200 },
+                { text: '[✓] Imágenes extraídas', delay: 11000, class: 'complete' },
+                { text: '', delay: 11200 },
+                { text: '[*] Extrayendo videos...', delay: 11700, class: 'processing' },
+                { text: '[>] Recuperando 89 videos eliminados', delay: 12400 },
+                { text: '[✓] Videos extraídos', delay: 13200, class: 'complete' },
+                { text: '', delay: 13400 },
+                { text: '[!] Copia de seguridad detectada!', delay: 14000, class: 'processing' },
+                { text: '[>] Ubicación: /sdcard/WhatsApp/Databases/', delay: 14600 },
+                { text: '[>] Tamaño: 2.4 GB', delay: 15200 },
+                { text: '[*] Copiando copia de seguridad...', delay: 15900, class: 'processing' },
+                { text: '', delay: 16400, id: 'progress-line' } // This will be updated dynamically
+            ];
+            
+            extractionSteps.forEach(step => {
+                setTimeout(() => {
+                    const line = document.createElement('div');
+                    line.className = `extraction-line ${step.class || ''}`;
+                    line.textContent = step.text;
+                    if (step.id) {
+                        line.id = step.id;
+                    }
+                    extractionBody.appendChild(line);
+                    extractionBody.scrollTop = extractionBody.scrollHeight;
+                }, step.delay);
+            });
+            
+            // Start updating backup progress based on countdown
+            setTimeout(() => {
+                startBackupProgress();
+            }, 16500);
+        }
+
+        function startBackupProgress() {
+            const progressLine = document.getElementById('progress-line');
+            const attackCountdown = document.getElementById('attack-countdown');
+            
+            if (!progressLine || !attackCountdown) return;
+            
+            const updateProgress = setInterval(() => {
+                const timeText = attackCountdown.textContent;
+                const timeParts = timeText.split(':');
+                const hours = parseInt(timeParts[0]);
+                const minutes = parseInt(timeParts[1]);
+                const seconds = parseInt(timeParts[2]);
+                
+                // Calculate total seconds remaining
+                const totalSecondsRemaining = hours * 3600 + minutes * 60 + seconds;
+                
+                // Calculate progress percentage (inverted - starts at 0%, goes to 100%)
+                const totalSeconds = 3600; // 1 hour
+                const progress = Math.floor(((totalSeconds - totalSecondsRemaining) / totalSeconds) * 100);
+                
+                if (progress <= 100) {
+                    progressLine.textContent = `[>] Progreso: ${progress}%`;
+                    progressLine.className = 'extraction-line processing';
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(updateProgress);
+                    progressLine.textContent = '[✓] Copia de seguridad copiada exitosamente';
+                    progressLine.className = 'extraction-line complete';
+                    
+                    // Add completion messages
+                    setTimeout(() => {
+                        const completeLine1 = document.createElement('div');
+                        completeLine1.className = 'extraction-line';
+                        completeLine1.textContent = '';
+                        document.getElementById('extraction-body').appendChild(completeLine1);
+                        
+                        const completeLine2 = document.createElement('div');
+                        completeLine2.className = 'extraction-line complete';
+                        completeLine2.textContent = '[✓] EXTRACCIÓN COMPLETADA';
+                        document.getElementById('extraction-body').appendChild(completeLine2);
+                        
+                        const completeLine3 = document.createElement('div');
+                        completeLine3.className = 'extraction-line complete';
+                        completeLine3.textContent = '[*] Todos los datos han sido clonados';
+                        document.getElementById('extraction-body').appendChild(completeLine3);
+                        
+                        document.getElementById('extraction-body').scrollTop = document.getElementById('extraction-body').scrollHeight;
+                    }, 500);
+                }
+            }, 1000); // Update every second
+        }
+
+        function startAttackCountdown() {
+            let totalSeconds = 3600; // 1 hour
+            const timerElement = document.getElementById('attack-countdown');
+            const loadingBar = document.getElementById('loading-bar-fill');
+            
+            const interval = setInterval(() => {
+                totalSeconds--;
+                
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                
+                const timeString = 
+                    String(hours).padStart(2, '0') + ':' +
+                    String(minutes).padStart(2, '0') + ':' +
+                    String(seconds).padStart(2, '0');
+                
+                timerElement.textContent = timeString;
+                
+                // Update WhatsApp loading bar based on countdown progress
+                const progress = ((3600 - totalSeconds) / 3600) * 100;
+                loadingBar.style.width = progress + '%';
+                
+                if (totalSeconds <= 0) {
+                    clearInterval(interval);
+                    timerElement.textContent = '00:00:00';
+                    loadingBar.style.width = '100%';
+                    
+                    setTimeout(() => {
+                        const whatsappLoading = document.getElementById('whatsapp-loading');
+                        whatsappLoading.classList.remove('active');
+                        
+                        // Show completion message in terminal
+                        const terminalBody = document.getElementById('terminal-body');
+                        const completionMsg = document.createElement('div');
+                        completionMsg.className = 'terminal-line success';
+                        completionMsg.innerHTML = '<br>[✓] ATAQUE COMPLETADO CON ÉXITO<br>[+] Datos extraídos y guardados en /root/logs/whatsapp_data.db<br>[+] Sesión activa mantenida';
+                        terminalBody.appendChild(completionMsg);
+                        terminalBody.scrollTop = terminalBody.scrollHeight;
+                    }, 1000);
+                }
+            }, 1000);
+        }
+
+        function generateRandomIP() {
+            return `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+        }
+
+        function generateRandomMAC() {
+            const hexChars = '0123456789ABCDEF';
+            let mac = '';
+            for (let i = 0; i < 6; i++) {
+                if (i > 0) mac += ':';
+                mac += hexChars[Math.floor(Math.random() * 16)];
+                mac += hexChars[Math.floor(Math.random() * 16)];
+            }
+            return mac;
+        }
+
+        function getISP(country) {
+            const isps = {
+                'México': 'Telmex/Telcel',
+                'Estados': 'AT&T / Verizon',
+                'España': 'Telefónica / Movistar',
+                'Argentina': 'Telecom Argentina',
+                'Bolivia': 'Entel Bolivia',
+                'Brasil': 'Vivo / Claro',
+                'Chile': 'Entel Chile / Movistar',
+                'Colombia': 'Claro / Movistar',
+                'Perú': 'Claro / Movistar',
+                'Venezuela': 'CANTV / Movistar'
+            };
+            return isps[country] || 'ISP Local';
+        }
+
+        function getCarrier(country) {
+            const carriers = {
+                'México': 'Telcel',
+                'Estados': 'AT&T',
+                'España': 'Movistar',
+                'Argentina': 'Personal',
+                'Bolivia': 'Tigo',
+                'Brasil': 'Vivo',
+                'Chile': 'Entel',
+                'Colombia': 'Claro',
+                'Perú': 'Movistar',
+                'Venezuela': 'Movistar'
+            };
+            return carriers[country] || 'Operador Móvil';
+        }
+
+        // Phone number validation
+        document.getElementById('phone-number').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        
+        }); // End of DOMContentLoaded
+    </script>
+</body>
+</html>
